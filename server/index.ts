@@ -19,6 +19,11 @@ console.log(`   MONGODB_URI: ${process.env.MONGODB_URI ? '✅ Set' : '❌ Not se
 console.log(`   SESSION_SECRET: ${process.env.SESSION_SECRET ? '✅ Set' : '❌ Not set'}\n`);
 
 const app = express();
+
+// Ensure Express knows it's behind a proxy (Render, Vercel, etc.) so secure cookies work
+// Without this, req.secure will be false and secure cookies won't be set
+app.set('trust proxy', 1);
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -30,8 +35,9 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production", // send cookie only over HTTPS in production
       httpOnly: true,
+      sameSite: "lax",
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
   })
