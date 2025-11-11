@@ -30,7 +30,11 @@ export default function Navbar() {
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Account for fixed navbar height so the section title isn't hidden
+      const nav = document.querySelector('nav') as HTMLElement | null;
+      const offset = nav ? nav.offsetHeight + 8 : 72; // default ~72px
+      const top = element.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top, behavior: 'smooth' });
     }
     setIsMobileMenuOpen(false);
   };
